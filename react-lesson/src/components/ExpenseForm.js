@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const ExpenseForm = () => {
+const ExpenseForm = (props) => {
   // const [data, setData] = useState({
   //     title: '',
   //     amount: '',
@@ -24,10 +24,11 @@ const ExpenseForm = () => {
     const expenseData = {
       title: title,
       amount: amount,
-      date: new Date(date),
+      date: new Date(date).toISOString(),
     };
 
     console.log(expenseData);
+    props.onSave(expenseData);
     setTitle("");
     setAmount("");
     setDate("");
@@ -38,7 +39,7 @@ const ExpenseForm = () => {
   };
 
   const amountChangeHandler = (event) => {
-    setAmount(event.target.value);
+    setAmount(parseInt(event.target.value));
   };
 
   const dateChangeHandler = (event) => {
