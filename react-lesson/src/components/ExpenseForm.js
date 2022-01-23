@@ -1,38 +1,59 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import ErrorModal from './ErrorModal.js'
 
 const ExpenseForm = (props) => {
-  // const [data, setData] = useState({
-  //     title: '',
-  //     amount: '',
-  //     date: ''
-  // })
-
-  // const handleInput = (e) => {
-  //     setData({
-  //       ...data,
-  //       [e.target.name]: e.target.value,
-  //     })
-  // }
-
-  const [title, setTitle] = useState();
-  const [amount, setAmount] = useState();
-  const [date, setDate] = useState();
+  const titleInputRef = useRef()
+  const amountInputRef = useRef()
+  const dateInputRef = useRef()
+  
+  const [error, setError] = useState();
+  const [title, setTitleInput] = useState();
+  // const [amount, setAmount] = useState();
+  // const [date, setDate] = useState();
 
   const submitHandler = (event) => {
     event.preventDefault();
 
+    if (!titleInputRef.current.value.trim().length) {
+      setError({
+        title: 'Wrong title',
+        message: 'Please input a valid title'
+      });
+      return;
+    }
+
+    if (isNaN(parseFloat(amountInputRef.current.value))) {
+      setError({
+        title: 'Wrong amount',
+        message: 'Please input a valid amount'
+      });
+      return;
+    }
+
+    if (!dateInputRef.current.value) {
+      setError({
+        title: 'Wrong date',
+        message: 'Please input a valid date'
+      });
+      return;
+    }
+
     const expenseData = {
-      title: title,
-      amount: amount,
-      date: new Date(date).toISOString(),
+      title: titleInputRef.current.value.trim(),
+      amount: parseInt(amountInputRef.current.value),
+      date: new Date(dateInputRef.current.value).toISOString(),
     };
 
-    console.log(expenseData);
     props.onSave(expenseData);
-    setTitle("");
-    setAmount("");
-    setDate("");
+
+    titleInputRef.current.value = ''
+    amountInputRef.current.value = ''
+    dateInputRef.current.value = ''
   };
+
+  const confirmHandler = () => {
+    setError(null);
+  }
 
   const titleChangeHandler = (event) => {
     setTitle(event.target.value);
@@ -46,6 +67,14 @@ const ExpenseForm = (props) => {
     setDate(event.target.value);
   };
   return (
+    <>
+       {error && (
+        <ErrorModal
+          title={error.title}
+          message={error.message}
+          onConfirm={confirmHandler}
+        />
+      )}
     <form onSubmit={submitHandler}>
       <div>
         <label htmlFor="title">Title</label>
@@ -54,6 +83,7 @@ const ExpenseForm = (props) => {
           type="text"
           onChange={titleChangeHandler}
           value={title}
+          ref={titleInputRef}
         />
       </div>
       <div>
@@ -77,6 +107,7 @@ const ExpenseForm = (props) => {
       </div>
       <button>Submit</button>
     </form>
+    </>
   );
 };
 
